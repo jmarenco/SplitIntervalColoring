@@ -6,5 +6,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="libs/jna-5.18.1.jar"/>
+	<classpathentry kind="lib" path="libs/jna-platform-5.18.1.jar"/>
+	<classpathentry kind="lib" path="libs/ortools-java-9.12.4544.jar"/>
+	<classpathentry kind="lib" path="libs/ortools-linux-x86-64-9.12.4544.jar"/>
+	<classpathentry kind="lib" path="libs/protobuf-java-4.33.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
