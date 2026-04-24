@@ -8,14 +8,14 @@ public class EntryPoint
 	{
 	    Loader.loadNativeLibraries();
 
-	    Graph graph = new Graph(3);
-		graph.addEdge(0, 1);
-		graph.addEdge(0, 2);
-		graph.setDemand(0, 2);
-		graph.setDemand(1, 2);
-		graph.setDemand(2, 2);
+//	    Graph graph = new Graph(3);
+//		graph.addEdge(0, 1);
+//		graph.addEdge(0, 2);
+//		graph.setDemand(0, 2);
+//		graph.setDemand(1, 2);
+//		graph.setDemand(2, 2);
 		
-		Model model = new Model(graph, 5);
+		Model model = new Model(Benchmark.erdosRenyi(20, 0.4, 1, 5, 0), 30);
 		model.solve();
 	}
 }

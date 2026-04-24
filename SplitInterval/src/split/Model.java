@@ -22,6 +22,7 @@ public class Model
 	
 	private boolean _solverOutput = true;
 	private boolean _verbose = true;
+	private boolean _checkSolution = true;
 
 	public Model(Graph graph, int colors)
 	{
@@ -39,6 +40,7 @@ public class Model
 		createOrderingConstraints();
 		createObjective();
 		solveModel(3600);
+		checkSolution();
 		closeSolver();
 	}
 	
@@ -128,7 +130,7 @@ public class Model
 		obj.setCoefficient(z, 1);
 	}
 	
-	protected void solveModel(double timeLimit)
+	private void solveModel(double timeLimit)
 	{
 		_solver.setTimeLimit((int)(1000 * timeLimit));
 		_status = _solver.solve();
@@ -152,12 +154,34 @@ public class Model
 				{
 					int ip = _graph.twinIndex(i);
 					
-					System.out.println(" l(" + i + ")  = " + l[i].solutionValue() + ", r(" + i + ")  = " + r[i].solutionValue());
-					System.out.println(" l(" + i + "') = " + l[ip].solutionValue() + ", r(" + i + "') = " + r[ip].solutionValue());
+					System.out.println(" l(" + i + ")  = " + String.format("%.1f", l[i].solutionValue()) + ", r(" + i + ")  = " + String.format("%.1f", r[i].solutionValue()));
+					System.out.println(" l(" + i + "') = " + String.format("%.1f", l[ip].solutionValue()) + ", r(" + i + "') = " + String.format("%.1f", r[ip].solutionValue()));
 				}
 			}
 	
 			System.out.println();
+		}
+	}
+	
+	private void checkSolution()
+	{
+		if( _checkSolution == false )
+			return;
+		
+		for(int i=0; i<_graph.size(); ++i) if( _graph.isOriginal(i) )
+		{
+			int ip = _graph.twinIndex(i);
+			double asignado = r[i].solutionValue() - l[i].solutionValue() + r[ip].solutionValue() - l[ip].solutionValue();
+
+			if( Math.abs(asignado - _graph.getDemand(i)) > 0.001)
+				throw new RuntimeException("Assigned demand for " + i + " = " + asignado + ", but d(" + i + ") = " + _graph.getDemand(i));
+		}
+		
+		for(int i=0; i<_graph.size(); ++i)
+		for(int j=0; j<_graph.size(); ++j) if( _graph.isEdge(i, j) )
+		{
+			if( r[i].solutionValue() > l[j].solutionValue() + 0.001 && r[j].solutionValue() > l[i].solutionValue() + 0.001 )
+				throw new RuntimeException("Intervals of " + i + " and " + j + " do not overlap");
 		}
 	}
 	
