@@ -38,6 +38,9 @@ public class Model
 		createAntiparallelityConstraints();
 		createSymmetryConstraints();
 		createOrderingConstraints();
+
+		addLeftCliqueInequalities();
+		
 		createObjective();
 		solveModel(3600);
 		checkSolution();
@@ -123,9 +126,39 @@ public class Model
 			constr.setCoefficient(r[i], -1);
 		}
 	}
+	
+	private void addLeftCliqueInequalities()
+	{
+		int added = 0;
+		
+		for(int i=0; i<_graph.size(); ++i)
+		for(var K: Cliquer.findAll(_graph.neighborsOf(i), 3))
+		{
+			MPConstraint constr = _solver.makeConstraint(0, 1000);
+			constr.setCoefficient(l[i], 1);
+			
+			for(var k: K)
+			{
+				constr.setCoefficient(r[k], -1);
+				constr.setCoefficient(l[k], 1);
+				constr.setCoefficient(x[i][k], _graph.getDemand(_graph.originalIndex(k)));
+			}
+			
+			++added;
+		}
+		
+		System.out.println(added + " left clique inequalities");
+	}
 
 	private void createObjective()
 	{
+		for(int i=0; i<_graph.size(); ++i)
+		{
+			MPConstraint constr = _solver.makeConstraint(-1000, 0);
+			constr.setCoefficient(r[i], 1);
+			constr.setCoefficient(z, -1);
+		}
+		
 		MPObjective obj = _solver.objective();
 		obj.setCoefficient(z, 1);
 	}
@@ -133,6 +166,9 @@ public class Model
 	private void solveModel(double timeLimit)
 	{
 		_solver.setTimeLimit((int)(1000 * timeLimit));
+		_solver.setSolverSpecificParametersAsString("separating/maxcuts = 0");
+		_solver.setSolverSpecificParametersAsString("separating/maxcutsroot = 0");
+		
 		_status = _solver.solve();
 		
 		if( _status == ResultStatus.OPTIMAL || _status == ResultStatus.FEASIBLE )

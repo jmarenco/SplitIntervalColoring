@@ -57,8 +57,41 @@ public class Graph
 		return i < n ? i+n : i-n;
 	}
 	
+	public int originalIndex(int i)
+	{
+		return i < n ? i : i-n;
+	}
+	
 	public int size()
 	{
 		return A.length;
+	}
+	
+	public Graph neighborsOf(int vertex)
+	{
+		Graph ret = new Graph(n);
+		
+		for(int i=0; i<n; ++i)
+			ret.setDemand(i, this.getDemand(i));
+		
+		for(int i=0; i<n; ++i)
+		for(int j=0; j<n; ++j) if( this.isEdge(i, j) && this.isEdge(i, vertex) && this.isEdge(j, vertex) )
+			ret.addEdge(i, j);
+		
+		return ret;
+	}
+	
+	public Graph neighborsOf(int vertex1, int vertex2)
+	{
+		Graph ret = new Graph(n);
+		
+		for(int i=0; i<n; ++i)
+			ret.setDemand(i, this.getDemand(i));
+		
+		for(int i=0; i<n; ++i)
+			for(int j=0; j<n; ++j) if( this.isEdge(i, j) && this.isEdge(i, vertex1) && this.isEdge(j, vertex1)  && this.isEdge(i, vertex2) && this.isEdge(j, vertex2))
+			ret.addEdge(i, j);
+		
+		return ret;
 	}
 }
